@@ -10,7 +10,6 @@ const cookieParser = require('cookie-parser');
 const multer = require('multer');
 const upload = multer({dest: 'uploads/'});
 const fs = require('fs');
-const {response} = require("express");
 const secretKey = '7793B15EAC56DFC1D3EA5D021F6E1CB45F45C77DFB517A64DAB6C9F371D81249';
 const CONNECTION_STRING = "mongodb+srv://sertan:SCBiMDMGGys5XhDK@blogcluster.909konm.mongodb.net/";
 

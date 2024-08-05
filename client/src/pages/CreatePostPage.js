@@ -5,7 +5,6 @@ import 'react-quill/dist/quill.snow.css';
 //import {model} from "mongoose";
 import {calculateNewValue} from "@testing-library/user-event/dist/utils";
 import {Form, Navigate} from "react-router-dom";
-import {response} from "express";
 
 export default function CreatePostPage() {
 	//const {setUserInfo} = useContext(UserContext);
