@@ -10,7 +10,8 @@ const cookieParser = require('cookie-parser');
 const multer = require('multer');
 const upload = multer({dest: 'uploads/'});
 const fs = require('fs');
-const secretKey = '7793B15EAC56DFC1D3EA5D021F6E1CB45F45C77DFB517A64DAB6C9F371D81249';
+
+const SECRET_KEY = '7793B15EAC56DFC1D3EA5D021F6E1CB45F45C77DFB517A64DAB6C9F371D81249';
 const CONNECTION_STRING = "mongodb+srv://sertan:SCBiMDMGGys5XhDK@blogcluster.909konm.mongodb.net/";
 
 app.use(cors({credentials: true, origin: 'http://localhost:3000'}));
@@ -47,7 +48,7 @@ app.post('/login', async (req, res) => {
 	const userDoc = await User.findOne({username});
 
 	if (bcrypt.compareSync(password, userDoc.password)) {
-		jwt.sign({username, id: userDoc._id}, secretKey, {}, (err, token) => {
+		jwt.sign({username, id: userDoc._id}, SECRET_KEY, {}, (err, token) => {
 			if (err) throw err;
 			res.cookie('token', token).json({
 				id: userDoc._id,
@@ -61,7 +62,7 @@ app.post('/login', async (req, res) => {
 
 app.get('/profile', (req, res) => {
 	const {token} = req.cookies;
-	jwt.verify(token, secretKey, {}, (err, info) => {
+	jwt.verify(token, SECRET_KEY, {}, (err, info) => {
 		if (err) throw err;
 		res.json(info);
 	});
@@ -73,20 +74,27 @@ app.post('/logout', (req, res) => {
 
 app.post('/post', upload.single('file'), async (req, res) => {
 	let newPath = null;
-	if (req.file) {
-		const {originalname, path} = req.file;
-		const parts = originalname.split('.');
+	const {originalName, path} = req.file;
+	if (typeof originalName === 'string') {
+		const parts = originalName.split('.');
 		const ext = parts[parts.length - 1];
 		newPath = path + '.' + ext;
 		fs.renameSync(path, newPath);
-
-		const {title, content} = req.body;
-		const postDoc = await Post.create({
-			title,
-			content,
-			cover: newPath
-		});
 	}
+
+	const {token} = req.cookies;
+  	jwt.verify(token, SECRET_KEY, {}, async (err,info) => {
+    if (err) throw err;
+    const {title,summary,content} = req.body;
+    const postDoc = await Post.create({
+     	title,
+        summary,
+        content,
+        cover:newPath,
+        author:info.id,
+    });
+    res.json(postDoc);
+  });
 });
 
 app.listen(4000, () => {

@@ -1,17 +1,22 @@
-import {UserContext} from "../UserContext";
-import {useContext, useState} from "react";
+import {useState} from "react";
 import ReactQuill from "react-quill";
 import 'react-quill/dist/quill.snow.css';
-//import {model} from "mongoose";
+import {Navigate} from "react-router-dom";
+
+/*
+import {model} from "mongoose";
 import {calculateNewValue} from "@testing-library/user-event/dist/utils";
 import {Form, Navigate} from "react-router-dom";
+import {UserContext} from "../UserContext";
+*/
 
 export default function CreatePostPage() {
 	//const {setUserInfo} = useContext(UserContext);
 
 	const [title, setTitle] = useState('');
-	const [files, setFiles] = useState(null);
+	const [files, setFiles] = useState('');
 	const [content, setContent] = useState('');
+	const [redirect, setRedirect] = useState(false);
 
 	const modules = {
 		toolbar: [
@@ -32,17 +37,28 @@ export default function CreatePostPage() {
 		"list", "bullet", "indent", "link", "image", "color", "clean",];
 
 	async function createPost(ev) {
-		ev.preventDefault();
 		const data = new FormData();
 		data.set('title', title);
 		data.set('file', files[0]);
 		data.set('content', content);
+		ev.preventDefault();
 
 		const response = await fetch('http://localhost:4000/post', {
 			method: 'POST',
 			body: data,
 			credentials: 'include'
 		});
+
+		if (response.ok) {
+			setRedirect(true);
+			console.log("setRedirect(true) executed");
+		} else {
+			console.log("Failed to create post", response.statusText);
+		}
+	}
+
+	if (redirect) {
+		return	<Navigate to={'/'}/>
 	}
 
 	return (
