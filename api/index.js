@@ -10,6 +10,7 @@ const cookieParser = require('cookie-parser');
 const multer = require('multer');
 const upload = multer({dest: 'uploads/'});
 const fs = require('fs');
+const {response} = require("express");
 
 const SECRET_KEY = '7793B15EAC56DFC1D3EA5D021F6E1CB45F45C77DFB517A64DAB6C9F371D81249';
 const CONNECTION_STRING = "mongodb+srv://sertan:SCBiMDMGGys5XhDK@blogcluster.909konm.mongodb.net/";
@@ -23,6 +24,8 @@ mongoose.connect(CONNECTION_STRING).then(() => {
 }).catch(err => {
 	console.error("Database Connection Error", err);
 });
+
+app.use('/uploads', express.static(__dirname +  '/uploads'));
 
 app.post('/register', async (req, res) => {
 	try {
@@ -74,27 +77,37 @@ app.post('/logout', (req, res) => {
 
 app.post('/post', upload.single('file'), async (req, res) => {
 	let newPath = null;
-	const {originalName, path} = req.file;
-	if (typeof originalName === 'string') {
-		const parts = originalName.split('.');
+	const {originalname, path} = req.file;
+	if (typeof originalname === 'string') {
+		const parts = originalname.split('.');
 		const ext = parts[parts.length - 1];
-		newPath = path + '.' + ext;
+		newPath = `${path}.${ext}`;
 		fs.renameSync(path, newPath);
 	}
 
 	const {token} = req.cookies;
-  	jwt.verify(token, SECRET_KEY, {}, async (err,info) => {
-    if (err) throw err;
-    const {title,summary,content} = req.body;
-    const postDoc = await Post.create({
-     	title,
-        summary,
-        content,
-        cover:newPath,
-        author:info.id,
-    });
-    res.json(postDoc);
-  });
+	jwt.verify(token, SECRET_KEY, {}, async (err, info) => {
+		if (err) throw err;
+		const {title, summary, content} = req.body;
+		const postDoc = await Post.create({
+			title,
+			summary,
+			content,
+			cover: newPath,
+			author: info.id,
+		});
+		res.json(postDoc);
+	});
+});
+
+app.get('/post', async (req, res) => {
+	const posts = await Post.find();
+	res.json(
+		await Post.find()
+			.populate(undefined)
+			.sort({createdAt: -1})
+			.limit(10)
+	);
 });
 
 app.listen(4000, () => {

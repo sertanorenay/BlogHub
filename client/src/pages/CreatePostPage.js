@@ -37,11 +37,11 @@ export default function CreatePostPage() {
 		"list", "bullet", "indent", "link", "image", "color", "clean",];
 
 	async function createPost(ev) {
+		ev.preventDefault();
 		const data = new FormData();
 		data.set('title', title);
 		data.set('file', files[0]);
 		data.set('content', content);
-		ev.preventDefault();
 
 		const response = await fetch('http://localhost:4000/post', {
 			method: 'POST',
