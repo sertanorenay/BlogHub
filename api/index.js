@@ -16,6 +16,7 @@ const SECRET_KEY = '7793B15EAC56DFC1D3EA5D021F6E1CB45F45C77DFB517A64DAB6C9F371D8
 const CONNECTION_STRING = "mongodb+srv://sertan:SCBiMDMGGys5XhDK@blogcluster.909konm.mongodb.net/";
 
 app.use(cors({credentials: true, origin: 'http://localhost:3000'}));
+app.use('/uploads', express.static(__dirname +  '/uploads'));
 app.use(express.json());
 app.use(cookieParser());
 
@@ -24,8 +25,6 @@ mongoose.connect(CONNECTION_STRING).then(() => {
 }).catch(err => {
 	console.error("Database Connection Error", err);
 });
-
-app.use('/uploads', express.static(__dirname +  '/uploads'));
 
 app.post('/register', async (req, res) => {
 	try {
@@ -94,7 +93,7 @@ app.post('/post', upload.single('file'), async (req, res) => {
 			summary,
 			content,
 			cover: newPath,
-			author: info.id,
+			author: info.id
 		});
 		res.json(postDoc);
 	});
@@ -104,7 +103,7 @@ app.get('/post', async (req, res) => {
 	const posts = await Post.find();
 	res.json(
 		await Post.find()
-			.populate(undefined)
+			.populate('author', ['username'])
 			.sort({createdAt: -1})
 			.limit(10)
 	);

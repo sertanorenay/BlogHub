@@ -28,7 +28,7 @@ export default function Header() {
 	return (
 		<div className="header-div">
 			<header>
-				<Link to="/" className="logo">BlogApp</Link>
+				<Link to="/" className="logo">BlogHub</Link>
 				<nav>
 					{username && (
 						<>

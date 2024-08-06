@@ -1,6 +1,7 @@
-export default function Post({title, cover, content, createdAt}) {
+export default function Post({_id, title, cover, content, createdAt, author}) {
 	const coverUrl = `http://localhost:4000/${cover}`;
 	const date = new Date(createdAt);
+	const summary = content.substr(0,300); //
 
 	const options = {
 		year: 'numeric',
@@ -11,7 +12,6 @@ export default function Post({title, cover, content, createdAt}) {
 	};
 
 	const formattedDate = date.toLocaleString('en-US', options);
-// 					src="https://artrkl.com/cdn/shop/articles/gustave_moreau_-_perseus_and_andromeda_1870-1701383579564.jpg?v=1701384275&width=1100"
 	return (
 		<div className="post">
 			<div className="image">
@@ -20,7 +20,8 @@ export default function Post({title, cover, content, createdAt}) {
 			<div className="post-content">
 				<h2 className="Header">{title}</h2>
 				<time>{formattedDate}</time>
-				<p className="text">{content}</p>
+				<p className="author">Author: {author.username}</p>
+				{content}
 			</div>
 		</div>
 	);
